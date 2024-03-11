@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" name="viewport" content="width=device-width"/>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+	</head>
+
+<!--CSS START HERE-->
+<style>
+.container-fluid{
+	background-color:green;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: green;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: green;
+}
+
+body{
+	background-image: url('kabsu.jpg');
+	background-repeat: no-repeat;
+  	background-size: cover;
+}
+
+h3 {
+  text-align: center;
+}
+</style>
+
+<body>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+		<ul>
+  			<li><a class="active" class="navbar-brand" href="studhomepage.php">Student Homepage</a></li>
+			<li><a class="active" class="navbar-brand" href="timein.php">Faculty Attendance</a></li>
+  		</ul>
+		</div>
+	</nav>
+	
+	<div class="col-md-3"></div>
+	<div class="col-md-6 well">
+		<h3 class="text-primary">Search Faculty Name</h3>
+		<hr style="border-top:1px dotted #ccc;"/>
+		<div class="col-md-1"></div>
+		<div class="col-md-10">
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#form_modal">Add Content</button>
+			<br />
+			<br />
+			<form class="form-inline" method="POST" action="searchindex.php">
+				<div class="input-group col-md-12">
+					<input type="text" class="form-control" placeholder="Search here..." name="keyword" required="required" value="<?php echo isset($_POST['keyword']) ? $_POST['keyword'] : '' ?>"/>
+					<span class="input-group-btn">
+						<button class="btn btn-primary" name="search"><span class="glyphicon glyphicon-search"></span></button>
+					</span>
+				</div>
+			</form>
+			<br />
+			<?php include 'search.php'?>
+		</div>
+	</div>
+	<div class="modal fade" id="form_modal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<form action="save_content.php" method="POST" enctype="multipart/form-data">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div class="col-md-2"></div>
+						<div class="col-md-8">
+							<div class="form-group">
+								<label>Title</label>
+								<input type="text" class="form-control" name="title" required="required"/>
+							</div>
+							<div class="form-group">
+								<label>Content</label>
+								<textarea class="form-control" style="resize:none; height:250px;" name="content" required="required"></textarea>
+							</div>
+						</div>
+					</div>
+					<div style="clear:both;"></div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+						<button name="save" class="btn btn-primary"><span class="glyphicon glyphicon-save"></span> Save</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+<script src="js/jquery-3.2.1.min.js"></script>
+<script src="js/bootstrap.js"></script>
+
+</body>
+</html>
