@@ -64,17 +64,21 @@
 		</div>
 		</div>
 
-
-		<!--MAIN CONTENT SECTION-->
-		<div class="main">
-			<div class = "container-fluid">
-
+		<div class="p-2">
 			<btn class="btn btn-outline-success">
 				<a class="fs-5 text-decoration-none text-success" href="login.php">Homepage</a>
 			</btn>
 			<btn class="btn btn-outline-success">
 				<a class="fs-5 text-decoration-none text-success" href="newattendance.php">View Attendance</a>
 			</btn>
+		</div>
+			
+
+		<!--MAIN CONTENT SECTION-->
+		<div class="main">
+			<div class = "container-fluid">
+
+			
 
 			<div class="attendance_log_field">
 			
