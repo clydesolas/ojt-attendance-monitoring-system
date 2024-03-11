@@ -52,26 +52,18 @@
 		.navbar-brand{
 			color:white;
 		}
+
 	</style>
 
 	<!--HTML STARTS HERE -->
 	<body>
 		<!--HEADER SECTION-->
 		<div class="banner">
-		<div class="w3-center" >
-    <span id= "asdasd"class="w3-text-white w3-hide-small" style="font-size:35px">Attendance Monitoring System</span>
-   <br> <span id= "asdasd"class="w3-text-white w3-hide-small" style="font-size:20px">OJT at Extension Service Office</span>
+		<div class="w3-center" style="padding-top:30px;">
+    <span id= "asdasd"class="w3-text-white w3-hide-small" style="font-size:35px">OJT Attendance Monitoring System</span>
 		</div>
 		</div>
 
-		<div class="p-2">
-			<btn class="btn btn-outline-success">
-				<a class="fs-5 text-decoration-none text-success" href="login.php">Homepage</a>
-			</btn>
-			<btn class="btn btn-outline-success">
-				<a class="fs-5 text-decoration-none text-success" href="newattendance.php">View Attendance</a>
-			</btn>
-		</div>
 			
 
 		<!--MAIN CONTENT SECTION-->
@@ -83,6 +75,12 @@
 			<div class="attendance_log_field">
 			
 				<div class="col-md-4 offset-md-4">
+
+				<div class="card" style="margin: 30px 40px;">
+						<btn class="btn btn-outline-success">
+							<center><a class="fs-5 text-decoration-none text-success" href="newattendance.php">View Attendance</a></center>
+						</btn>
+					</div>
 				
 					<div class="card">
 						<div class="card-body">
@@ -112,6 +110,9 @@
 							</div>
 						</div>						
 					</div>
+
+					
+
 				</div>
 			</div>
 		</div>
