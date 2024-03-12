@@ -16,7 +16,7 @@
   		
   		</div>
       <div class="col-md-4 float-left text-white">
-        <large><b>IT DEPARTMENT FACULTY SCHEDULE</b></large>
+        <large><b>OJT Attendance Monitoring System</b></large>
       </div>
 	  	<div class="float-right">
         <div class=" dropdown mr-4">

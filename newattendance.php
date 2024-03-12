@@ -55,15 +55,15 @@ h3 {
 			
 
 		<div class = "container-fluid admin" >
-			<div class = "alert alert-primary"><a href="login.php"><b>Back to Homepage</b></a><br></div>
+			<div class = "alert alert-primary"><a href="timein.php"><b>Back to log-page</b></a><br></div>
 			<h3>Attendance List</h3><br>
 			<div class = "modal fade" id = "delete" tabindex = "-1" role = "dialog" aria-labelledby = "myModallabel">
 			</div>
-			<div class = "well col-lg-12">
+			<div class = "well col-lg-12" style="overflow-x:scroll; max-height: 600px;">
 				<table id="table" class="table table-bordered table-striped">
 					<thead>
 						<tr>
-							<th class="text-center">Employee ID</th>
+							<th class="text-center">Studnent ID</th>
 							<th class="text-center">Name</th>
 							<th class="text-center">Date</th>
 							<th class="text-center">Log Type</th>
@@ -81,14 +81,9 @@ h3 {
 							<td><?php echo date("F d, Y", strtotime($row['datetime_log']))?></td>
 							<?php 
 							if($row['log_type'] ==1){
-								$log = "TIME IN AM";
-							}elseif($row['log_type'] ==2){
-								$log = "TIME OUT AM";
-							}
-							elseif($row['log_type'] ==3){
-								$log = "TIME IN PM";
+								$log = "TIME IN";
 							}elseif($row['log_type'] ==4){
-								$log = "TIME OUT PM";
+								$log = "TIME OUT";
 							}
 							?>
 							<td><?php echo $log ?></td>
