@@ -1,39 +1,41 @@
-<?php include 'db_connect.php' ?>
-<?php
-if(isset($_GET['id'])){
-	$qry = $conn->query("SELECT *,concat(lastname,', ',firstname,' ',middlename) as name FROM faculty where id=".$_GET['id'])->fetch_array();
-	foreach($qry as $k =>$v){
-		$$k = $v;
-	}
-}
+<?php include('db_connect.php');
 
+if(isset($_GET['id'])){
+    $id = $_GET['id'];
+    $faculty =  $conn->query("SELECT *,concat(lastname,', ',firstname,' ',middlename) as name from faculty where id = $id");
+    foreach($faculty->fetch_assoc() as $k => $v){
+        $$k = $v;
+    }
+}
 ?>
+
 <div class="container-fluid">
-	<p>Name: <b><?php echo ucwords($name) ?></b></p>
-	<p>Gender: <b><?php echo ucwords($gender) ?></b></p>
-	<p>Email: </i> <b><?php echo $email ?></b></p>
-	<p>Contact: </i> <b><?php echo $contact ?></b></p>
-	<p>Address: </i> <b><?php echo $address ?></b></p>
-	<hr class="divider">
+    <div class="col-lg-12">
+        <div class="row mb-4 mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <b>Faculty Details</b>
+                        <span class=""></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="container-fluid">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <!-- Display Faculty Details Here -->
+                                        <p><b>ID No:</b> <?php echo $id_no ?></p>
+                                        <p><b>Name:</b> <?php echo ucwords($name) ?></p>
+                                        <p><b>Email:</b> <?php echo $email ?></p>
+                                        <p><b>Contact:</b> <?php echo $contact ?></p>
+                                        <!-- Add more details as needed -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="modal-footer display">
-	<div class="row">
-		<div class="col-md-12">
-			<button class="btn float-right btn-secondary" type="button" data-dismiss="modal">Close</button>
-		</div>
-	</div>
-</div>
-<style>
-	p{
-		margin:unset;
-	}
-	#uni_modal .modal-footer{
-		display: none;
-	}
-	#uni_modal .modal-footer.display {
-		display: block;
-	}
-</style>
-<script>
-	
-</script>

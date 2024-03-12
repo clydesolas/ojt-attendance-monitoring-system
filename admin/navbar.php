@@ -16,6 +16,7 @@
 				<a href="index.php?page=schedule" class="nav-item nav-schedule"><span class='icon-field'><i class="fa fa-calendar-day"></i></span> Schedule</a>
 				<?php if($_SESSION['login_type'] == 1): ?>
 				<a href="index.php?page=users" class="nav-item nav-users"><span class='icon-field'><i class="fa fa-users"></i></span> Users</a>
+				<a href="index.php?page=dtr" class="nav-item nav-dtr"><span class='icon-field'><i class="fa fa-charts"></i></span> Report</a>
 			<?php endif; ?>
 		</div>
 
