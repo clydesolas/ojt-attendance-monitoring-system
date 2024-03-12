@@ -26,11 +26,11 @@
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-header">
-						<b>Department of Computer Studies Faculty List</b>
+						<b>Intern List</b>
 						<span class="">
 
 							<button class="btn btn-primary btn-block btn-sm col-sm-2 float-right" type="button" id="new_faculty">
-					<i class="fa fa-plus"></i>Add Faculty</button>
+					<i class="fa fa-plus"></i> Add Intern</button>
 				</span>
 					</div>
 					<div class="card-body">
@@ -47,7 +47,7 @@
 							<thead>
 								<tr>
 									<th class="text-center">#</th>
-									<th class="">ID No</th>
+									<th class="">Student No</th>
 									<th class="">Name</th>
 									<th class="">Email</th>
 									<th class="">Contact</th>
@@ -105,7 +105,7 @@
 	}
 	img{
 		max-width:100px;
-		max-height: :150px;
+		max-height:150px;
 	}
 </style>
 <script>

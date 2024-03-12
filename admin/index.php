@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>IT DEPARTMENT SCHEDULING SYSTEM</title>
+  <title>OJT Attendance Monitoring System</title>
  	
 
 <?php

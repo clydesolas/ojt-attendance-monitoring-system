@@ -44,6 +44,54 @@
                     <?php echo "Welcome back ". $_SESSION['login_name']."!"  ?>
                     <hr>
                 </div>
+
+
+
+                <h3>&nbsp;&nbsp;Attendance List</h3><br>
+			<div class = "modal fade" id = "delete" tabindex = "-1" role = "dialog" aria-labelledby = "myModallabel">
+			</div>
+			<div class = "well col-lg-12" style="overflow-x:scroll; max-height: 520px;">
+				<table id="table" class="table table-bordered table-striped">
+					<thead>
+						<tr>
+							<th class="text-center">Studnent ID</th>
+							<th class="text-center">Name</th>
+							<th class="text-center">Date</th>
+							<th class="text-center">Log Type</th>
+							<th class="text-center">Time</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+						$attendance_qry = $conn->query("SELECT a.*,concat(f.firstname,' ',f.middlename,' ',f.lastname) as name, f.id_no FROM `attendance` a inner join faculty f on f.id_no = a.employee_id ") or die(mysqli_error());
+						while($row = $attendance_qry->fetch_array()){	
+					?>	
+						<tr>
+							<td><?php echo $row['id_no']?></td>
+							<td><?php echo htmlentities($row['name'])?></td>
+							<td><?php echo date("F d, Y", strtotime($row['datetime_log']))?></td>
+							<?php 
+							if($row['log_type'] ==1){
+								$log = "TIME IN";
+							}elseif($row['log_type'] ==4){
+								$log = "TIME OUT";
+							}
+							?>
+							<td><?php echo $log ?></td>
+							<td><?php echo date("h:i a", strtotime($row['datetime_log']))?></td>
+						</tr>
+					<?php
+						}
+					?>	
+					</tbody>
+				</table>
+			<br />
+			<br />	
+			<br />	
+			</div>
+
+
+
             </div>      			
         </div>
     </div>
