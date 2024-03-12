@@ -5,37 +5,75 @@ require_once 'vendor/tecnickcom/tcpdf/tcpdf.php';
 
 if(isset($_GET['id'])){
     $id = $_GET['id'];
-    //continue here march 12
-    //continue here march 12
-    //continue here march 12
-    //continue here march 12
-    //continue here march 12
-    //continue here march 12
-    //continue here march 12
-    //continue here march 12
-    //continue here march 12
-    //continue here march 12
 
-    $sql = "SELECT * FROM tbl_events a, tbl_user b, tbl_borrower_class c 
-    WHERE a.user_id = b.user_id 
-    AND (a.status = 'DONE' or a.status = 'APPROVED')
-    AND a.borrower_class_id = c.borrower_class_id 
-    AND a.date_requested >= '$start_date' AND a.date_requested <= '$end_date'";
+    $sql = "SELECT
+    employee_id,
+    log_date,
+    COALESCE(DATE_FORMAT(
+        CASE
+            WHEN am_in IS NOT NULL THEN am_in
+            ELSE pm_in
+        END, '%h:%i %p'), '-') as time_in,
+    COALESCE(DATE_FORMAT(
+        CASE
+            WHEN pm_out IS NOT NULL THEN pm_out
+            ELSE am_out
+        END, '%h:%i %p'), '-') as time_out,
+    am_work_hours,
+    pm_work_hours,
+    am_work_hours + pm_work_hours as total_work_hours
+FROM (
+    SELECT
+        employee_id,
+        DATE(datetime_log) as log_date,
+        MIN(CASE WHEN HOUR(datetime_log) < 12 AND log_type =  1 THEN datetime_log END) as am_in,
+        MAX(CASE WHEN HOUR(datetime_log) < 13  AND log_type =  4 THEN datetime_log END) as am_out,
+        MIN(CASE WHEN HOUR(datetime_log) >= 12  AND log_type =  1 THEN datetime_log END) as pm_in,
+        MAX(CASE WHEN HOUR(datetime_log) >= 12  AND log_type =  4 THEN datetime_log END) as pm_out,
+        COALESCE(TIMESTAMPDIFF(HOUR, 
+            MIN(CASE WHEN HOUR(datetime_log) < 12 AND log_type =  1  THEN datetime_log END), 
+            MAX(CASE WHEN HOUR(datetime_log) < 13 AND log_type =  4  THEN datetime_log END)
+        ), 0) as am_work_hours,
+        COALESCE(TIMESTAMPDIFF(HOUR, 
+            MIN(CASE WHEN HOUR(datetime_log) >= 12 AND log_type =  1  THEN datetime_log END), 
+            MAX(CASE WHEN HOUR(datetime_log) >= 12 AND log_type =  4 THEN datetime_log END)
+        ), 0) as pm_work_hours
+    FROM
+        attendance
+    WHERE
+        employee_id = '$id'
+        AND log_type IN (1, 4)
+    GROUP BY
+        employee_id,
+        log_date
+) AS subquery;
+";
 
-    $result = $connection->query($sql);
+    $result = $conn->query($sql);
+    if (!$result) {
+        die("Error: " . $conn->error);
+    }
+    
+    $sql2 = "SELECT
+    *
+    FROM
+        faculty
+    WHERE
+        id_no = '$id'
+        ";
 
-  
-// Include the main TCPDF library (search for installation path).
-require_once('../assets/global/vendor/tecnickcom/tcpdf/tcpdf.php');
+    $result2 = $conn->query($sql2);
 
-
+    if (!$result2) {
+        die("Error: " . $conn->error);
+    }
 // Extend the TCPDF class to create custom Header and Footer
 class MYPDF extends TCPDF {
 
     //Page header
         public function Header() {
             // Logo
-            $image_file ='../assets/global/img/cvsu-logo2.png';
+            $image_file ='cvsu-logo2.png';
             $this->Image($image_file, 20, 10, 27, '', 'PNG', '', 'T', false, 0, '', false, false, 0, false, false, false);
             // Set font
             $this->SetFont('helvetica', 'B', 10);
@@ -62,7 +100,7 @@ class MYPDF extends TCPDF {
             $this->SetFont('helvetica', 'I', 8);
             // Page number
             $this->Cell(0, 10, 'Page '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
-            $inf = 'Electronic Copy of SPO Accreditation | CvSU Imus';
+            $inf = 'Electronic Copy of DTR | CvSU Imus';
             $this->Cell(10, 15, $inf, 0, 1, 'R');
         }
     }
@@ -72,8 +110,8 @@ class MYPDF extends TCPDF {
     $pdf->SetY(100);
     // set document information
     $pdf->SetCreator(PDF_CREATOR);
-    $pdf->SetAuthor('Event Supply Management System');
-    $pdf->SetTitle('Supply Office Accreditation');
+    $pdf->SetAuthor('BSIT');
+    $pdf->SetTitle('OJT Attendance Management System');
 
     // set default header data
     $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE, PDF_HEADER_STRING);
@@ -106,73 +144,35 @@ class MYPDF extends TCPDF {
 
     // Start building the HTML string for the Excel table
     $html = '<table border="1" style="width:100%;">';
-    $html .= '<thead><tr><th style="width:35px">No.</th><th>Requested Date</th><th style="width:135px">Date of Activity</th><th>Name of Activity</th><th>Requested Supplies</th><th  style="width:100px">Dept./Office</th><th style="width:100px">Requested by</th></tr></thead>';
+    $html .= '<thead>
+    <tr>
+    <th style="text-align: center">Date</th>
+    <th style="text-align: center">Time In</th>
+    <th style="text-align: center">Time Out</th>
+    <th style="text-align: center">Hours</th>
+    <th>Signature</th>
+    
+    
+    </tr>
+    </thead>';
     $html .= '<tbody>';
 
     $i = 0;
     while ($row_data = $result->fetch_assoc()) {
         $i++;
-        $username = ucwords($row_data['firstname'] . " " . $row_data['surname']);
-        $requested_date = date("F j, Y - g:i A", strtotime($row_data['date_requested']));
-        $event_id = $row_data['event_id'];
+        $date = date("F j, Y");
+        $morningTimeIn = $row_data['time_in'];
+        $morningTimeOut = $row_data['time_out'];
+        $sumHours = $row_data['total_work_hours'];
 
-        if ($start_date == $end_date) {
-            $timeframe = date("F j, Y -  g:i A", strtotime($row_data['start_date'])) . ' to ' . date("g:i A", strtotime($row_data['end_date']));
-        } else {
-            $timeframe = date("F j, Y - g:i A", strtotime($row_data['start_date'])) . ' to ' . date("F j, Y g:i A", strtotime($row_data['end_date']));
-        }
-
-        $activity_name = ucwords($row_data['event_name']);
-        $borrower_class_name = $row_data['borrower_class_name'];
-        // Facilities
-        $sqlfac = mysqli_query($connection, "SELECT a.name FROM tbl_resources a, tbl_reserved_resources b, tbl_events c 
-            WHERE a.resources_id = b.resources_id 
-            AND a.type='FACILITY' 
-            AND b.event_id = c.event_id 
-            AND c.date_requested >= '$start_date' 
-            AND c.date_requested <= '$end_date' 
-            AND c.event_id =  '$event_id'") or die(mysqli_error($connection));
-
-        $facilityNames = array(); // Initialize an array to store facility names
-
-        if (mysqli_num_rows($sqlfac) > 0) {
-            while ($row1 = mysqli_fetch_array($sqlfac)) {
-                $facilityNames[] = $row1['name']; // Add facility_name to the array
-            }
-            $facilities = implode(', ', $facilityNames); // Join array elements with commas
-        } else {
-            $facilities = ''; // No facilities for this event
-        }
-
-        // Equipment
-        $sqleqp = mysqli_query($connection, "SELECT a.name, b.quantity as bquantity 
-            FROM tbl_resources a, tbl_reserved_resources b , tbl_events c
-            WHERE a.resources_id = b.resources_id AND b.event_id = '$event_id' 
-            AND a.type='EQUIPMENT'
-            AND c.date_requested >= '$start_date' 
-            AND c.date_requested <= '$end_date'
-            AND c.event_id =  '$event_id'") or die(mysqli_error($connection));
-
-        $equipmentString = ''; // Initialize equipment string
-
-        if (mysqli_num_rows($sqleqp) > 0) {
-            while ($row1 = mysqli_fetch_array($sqleqp)) {
-                $equipmentString .= $row1['name'] . ' (' . $row1['bquantity'] . 'x), '; // Concatenate equipment name and quantity
-            }
-            $equipmentString = rtrim($equipmentString, ', '); // Remove trailing comma and space
-        }
-
-        $supplies = $facilities . ($equipmentString ? ', ' . $equipmentString : ''); 
-
-        // Append row to HTML string
+        $signature=' ';
+         // Append row to HTML string
         $html .= '<tr>';
-        $html .= '<td style="width:35px; text-align:center">' . $i . '</td>';
-        $html .= '<td>' . $requested_date . '</td>';
-        $html .= '<td  style="width:135px">' . $timeframe . '</td>';
-        $html .= '<td>' . $activity_name . '</td>';
-        $html .= '<td>' . $supplies . '</td>';
-        $html .= '<td  style="width:100px">' . $borrower_class_name . '</td>';
-        $html .= '<td style="width:100px">' . $username . '</td>';
+        $html .= '<td style="text-align: center">' . $date . '</td>';
+        $html .= '<td style="text-align: center">' . $morningTimeIn . '</td>';
+        $html .= '<td style="text-align: center">' . $morningTimeOut . '</td>';
+        $html .= '<td style="text-align: center">' . $sumHours . '</td>';
+        $html .= '<td style="text-align: center">' . $signature . '</td>';
         $html .= '</tr>';
     }
 
@@ -184,5 +184,5 @@ class MYPDF extends TCPDF {
     // ... (TCPDF output and footer code)
     
     //Close and output PDF document
-    $pdf->Output('Supply_Office_Accreditation_'.$year.'.pdf', 'D');
+    $pdf->Output('dtr_.pdf', 'D');
 }

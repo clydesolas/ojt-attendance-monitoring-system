@@ -84,7 +84,7 @@
                                          <p><b><?php echo $row['contact'] ?></b></p>
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary view_faculty" type="button" data-id="<?php echo $row['id'] ?>" >Generate</button>
+                                        <button class="btn btn-sm btn-outline-primary view_faculty" type="button" data-id="<?php echo $row['id_no'] ?>" >Generate</button>
                                     </td>
                                 </tr>
                                 <?php endwhile; ?>
@@ -166,7 +166,7 @@
         uni_modal("New Entry","manage_faculty.php",'mid-large')
     })
     $('.view_faculty').click(function(){
-        window.location.href = 'view_dtr.php?id=' + $(this).attr('data-id');
+        window.location.href = 'generate_pdf.php?id=' + $(this).attr('data-id');
     })
     $('.edit_faculty').click(function(){
         uni_modal("Manage Job Post","manage_faculty.php?id="+$(this).attr('data-id'),'mid-large')
