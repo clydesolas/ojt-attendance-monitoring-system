@@ -140,7 +140,13 @@ class MYPDF extends TCPDF {
         $pdf->setLanguageArray($l);
     }
     $pdf->AddPage();
-    $pdf->SetY(40);
+    $pdf->SetY(38);
+
+    $head = "<p style='font-weight: bold;text-align: center'>On-the-Job Training (OJT) Program</p>";
+    $pdf->writeHTML($head, true, false, false, false, 'C');
+
+    $pdf->SetY(47);
+    
 
     // Start building the HTML string for the Excel table
     $html = '<table border="1" style="width:100%;">';
