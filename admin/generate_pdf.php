@@ -54,19 +54,15 @@ FROM (
         die("Error: " . $conn->error);
     }
     
-    $sql2 = "SELECT
-    *
-    FROM
-        faculty
-    WHERE
-        id_no = '$id'
-        ";
-
+    $sql2 = "SELECT * FROM faculty WHERE id_no = '$id'";
     $result2 = $conn->query($sql2);
 
     if (!$result2) {
         die("Error: " . $conn->error);
     }
+
+    $row = $result2->fetch_assoc();
+
 // Extend the TCPDF class to create custom Header and Footer
 class MYPDF extends TCPDF {
 
@@ -140,37 +136,90 @@ class MYPDF extends TCPDF {
         $pdf->setLanguageArray($l);
     }
     $pdf->AddPage();
-    $pdf->SetY(38);
+    $topMargin = 40; 
+    $pdf->SetMargins(PDF_MARGIN_LEFT, $topMargin, PDF_MARGIN_RIGHT);
+    $pdf->SetFont('freeserif', '', 11, '', true);
 
-    $head = "<p style='font-weight: bold;text-align: center'>On-the-Job Training (OJT) Program</p>";
+    $pdf->SetY(38);
+    $head = "<b style='font-size:10px;  font-weight: bold;text-align: center'>On-the-Job Training (OJT) Program</p>";
+    $pdf->writeHTML($head, true, false, false, false, 'C');
+    
+    $pdf->SetY(48);
+    $head = "<b style='font-size:10px; font-weight: bold;text-align: center'>DAILY TIME RECORD</p>";
     $pdf->writeHTML($head, true, false, false, false, 'C');
 
-    $pdf->SetY(47);
+    $program_code = $row['program_code'];
+    $total_hours = $row['total_hours'];
+    $pdf->SetY(57);
+    $fullname = $row['firstname'].' '.$row['middlename'].' '.$row['lastname'];
+
+    $firstrow = '
+        <table style="width: 100%;">
+            <tr>
+                <td style="width:7%;">Name:</td>
+                <td style="width:40%; border-bottom: .3px solid black;">'.$fullname.'</td>
+                <td style="width:13%;"></td>
+                <td style="width:15%;">Program Code:</td>
+                <td style="width:25%; border-bottom: .3px solid black;">'.$program_code.'</td>
+            </tr>
+        </table>';
+    
+    $pdf->writeHTML($firstrow, true, false, false, false, 'l');
+    
+   
+    $pdf->SetY(62);
+    $secondrow = '<table style="width: 100%;">
+                    <tr>
+                    <td style="width:33%;">Total No. of Hours to be completed:</td>
+                    <td style="width:14% ; border-bottom: .3px solid black;">'.$total_hours.'</td>
+                    </tr>
+                </table>';
+    $pdf->writeHTML($secondrow, true, false, false, false, 'L');
+
+    $pdf->SetY(69);
+    $semester = $row['semester'];
+    $academic_year = $row['academic_year'];
+    $check1 = $semester == 'FIRST' ? "\xE2\x9C\x93" : '';
+    $check2 = $semester == 'SECOND' ? "\xE2\x9C\x93" : '';
+    $check3 = $semester == 'SUMMER' ? "\xE2\x9C\x93" : '';
+
+    $thirdrow = "<table style='width: 100%; font-size:10px;'>
+                    <tr>
+                        <td>( $check1 ) 1st Semester</td>
+                        <td>($check2 ) 2nd Semester</td>
+                        <td>( $check3 ) Summer</td>
+                        <td>Academic Year <u>$academic_year</u></td>
+                    </tr>
+                </table>";
+
+    $pdf->writeHTML($thirdrow, true, false, false, false, 'L');
+
+
+    $pdf->SetY(79);
     
 
     // Start building the HTML string for the Excel table
-    $html = '<table border="1" style="width:100%;">';
+    $html = '<table border=".1" style="width:100%;">';
     $html .= '<thead>
     <tr>
-    <th style="text-align: center">Date</th>
-    <th style="text-align: center">Time In</th>
-    <th style="text-align: center">Time Out</th>
-    <th style="text-align: center">Hours</th>
-    <th>Signature</th>
-    
-    
+    <th style="font-weight:bold; text-align: center">Date</th>
+    <th style="font-weight:bold; text-align: center">Time In</th>
+    <th style="font-weight:bold; text-align: center">Time Out</th>
+    <th style="font-weight:bold; text-align: center">Hours</th>
+    <th style="font-weight:bold; text-align: center">Signature</th>
     </tr>
     </thead>';
     $html .= '<tbody>';
+        $average_hour = 0;
 
     $i = 0;
     while ($row_data = $result->fetch_assoc()) {
         $i++;
-        $date = date("F j, Y");
+        $date = date("F j, Y", strtotime($row_data['log_date']));
         $morningTimeIn = $row_data['time_in'];
         $morningTimeOut = $row_data['time_out'];
         $sumHours = $row_data['total_work_hours'];
-
+        $average_hour = $average_hour + $sumHours;
         $signature=' ';
          // Append row to HTML string
         $html .= '<tr>';
@@ -186,8 +235,9 @@ class MYPDF extends TCPDF {
 
     // Output the HTML table using writeHTML method
     $pdf->writeHTML($html, true, false, false, false, '');
+    $fourthrow = '<p>Total No. of Hours:</p> <div style = "width: 15px; border: 1px solid black">'.$average_hour.'</div>';
 
-    // ... (TCPDF output and footer code)
+    $pdf->writeHTML($fourthrow, true, false, false, false, 'L');
     
     //Close and output PDF document
     $pdf->Output('dtr_.pdf', 'D');
