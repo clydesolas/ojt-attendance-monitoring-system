@@ -37,10 +37,11 @@
                         // Fetch distinct academic years and semesters from the database
                         $grouped_data = $conn->query("SELECT DISTINCT academic_year, semester FROM faculty ORDER BY academic_year desc, semester desc");
                         while($group = $grouped_data->fetch_assoc()):
-                        ?>
+                              
+   ?>
                         <div class="group-label" data-academic-year="<?php echo $group['academic_year']; ?>" data-semester="<?php echo $group['semester']; ?>">
                             <h5>
-                                <?php echo $group['academic_year'] . ' - ' . $group['semester']; ?>
+                                <?php echo 'A.Y. '.$group['academic_year'] . ' - ' . $group['semester'].' Semester'; ?>
                                 <span class="toggle-indicator">+</span>
                             </h5>
                         </div>
@@ -49,17 +50,17 @@
                                 <col width="5%">
                                 <col width="20%">
                                 <col width="30%">
+                                <col width="15%">
                                 <col width="20%">
                                 <col width="10%">
-                                <col width="15%">
                             </colgroup>
                             <thead>
                                 <tr>
                                     <th class="text-center">#</th>
                                     <th class="">ID No</th>
                                     <th class="">Name</th>
-                                    <th class="">Email</th>
-                                    <th class="">Contact</th>
+                                    <th class="">Hours</th>
+                                    <th class="">Program Code</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -68,6 +69,59 @@
                                 $i = 1;
                                 $faculty =  $conn->query("SELECT *,concat(lastname,', ',firstname,' ',middlename) as name from faculty WHERE academic_year = '{$group['academic_year']}' AND semester = '{$group['semester']}' ORDER BY concat(lastname,', ',firstname,' ',middlename) ASC");
                                 while($row = $faculty->fetch_assoc()):
+                                    $id_no = $row['id_no'];
+                                    $sql = "SELECT
+                                    employee_id,
+                                    log_date,
+                                    COALESCE(DATE_FORMAT(
+                                        CASE
+                                            WHEN am_in IS NOT NULL THEN am_in
+                                            ELSE pm_in
+                                        END, '%h:%i %p'), '-') as time_in,
+                                    COALESCE(DATE_FORMAT(
+                                        CASE
+                                            WHEN pm_out IS NOT NULL THEN pm_out
+                                            ELSE am_out
+                                        END, '%h:%i %p'), '-') as time_out,
+                                    am_work_hours,
+                                    pm_work_hours,
+                                    am_work_hours + pm_work_hours as total_work_hours
+                                FROM (
+                                    SELECT
+                                        employee_id,
+                                        DATE(datetime_log) as log_date,
+                                        MIN(CASE WHEN HOUR(datetime_log) < 12 AND log_type =  1 THEN datetime_log END) as am_in,
+                                        MAX(CASE WHEN HOUR(datetime_log) < 13  AND log_type =  4 THEN datetime_log END) as am_out,
+                                        MIN(CASE WHEN HOUR(datetime_log) >= 12  AND log_type =  1 THEN datetime_log END) as pm_in,
+                                        MAX(CASE WHEN HOUR(datetime_log) >= 12  AND log_type =  4 THEN datetime_log END) as pm_out,
+                                        COALESCE(TIMESTAMPDIFF(HOUR, 
+                                            MIN(CASE WHEN HOUR(datetime_log) < 12 AND log_type =  1  THEN datetime_log END), 
+                                            MAX(CASE WHEN HOUR(datetime_log) < 13 AND log_type =  4  THEN datetime_log END)
+                                        ), 0) as am_work_hours,
+                                        COALESCE(TIMESTAMPDIFF(HOUR, 
+                                            MIN(CASE WHEN HOUR(datetime_log) >= 12 AND log_type =  1  THEN datetime_log END), 
+                                            MAX(CASE WHEN HOUR(datetime_log) >= 12 AND log_type =  4 THEN datetime_log END)
+                                        ), 0) as pm_work_hours
+                                    FROM
+                                        attendance
+                                    WHERE
+                                        employee_id = '$id_no'
+                                        AND log_type IN (1, 4)
+                                    GROUP BY
+                                        employee_id,
+                                        log_date
+                                ) AS subquery;
+                                ";
+                                
+                                    $result = $conn->query($sql);
+                                    if (!$result) {
+                                        die("Error: " . $conn->error);
+                                    }
+                                    $average_hour = 0;
+                                    while ($row_data = $result->fetch_assoc()) {
+                                        $sumHours = $row_data['total_work_hours'];
+                                        $average_hour = $average_hour + $sumHours;
+                                    }
                                 ?>
                                 <tr>
                                     <td class="text-center"><?php echo $i++ ?></td>
@@ -77,14 +131,15 @@
                                     <td class="">
                                          <p><b><?php echo ucwords($row['name']) ?></b></p>
                                     </td>
+                                    
                                     <td class="">
-                                         <p><b><?php echo $row['email'] ?></b></p>
+                                         <p><b><?php echo $average_hour.'/'.$row['total_hours'] ?></b></p>
                                     </td>
-                                    <td class="text-right">
-                                         <p><b><?php echo $row['contact'] ?></b></p>
+                                    <td class="">
+                                         <p><b><?php echo ucwords($row['program_code']) ?></b></p>
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary view_faculty" type="button" data-id="<?php echo $row['id_no'] ?>" >Generate</button>
+                                        <button class="btn btn-sm btn-outline-success view_faculty" type="button" data-id="<?php echo $row['id_no'] ?>" >Generate</button>
                                     </td>
                                 </tr>
                                 <?php endwhile; ?>

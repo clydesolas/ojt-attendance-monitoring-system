@@ -235,9 +235,31 @@ class MYPDF extends TCPDF {
 
     // Output the HTML table using writeHTML method
     $pdf->writeHTML($html, true, false, false, false, '');
-    $fourthrow = '<p>Total No. of Hours:</p> <div style = "width: 15px; border: 1px solid black">'.$average_hour.'</div>';
-
+    $fourthrow = '<table style="width:100%">
+                    <tr>
+                        <td style="width:19%">Total No. of Hours: </td>
+                        <td  style="width:8%"; text-align:center; border="1">'.$average_hour.'</td>
+                    </tr>
+                 </table> ';
     $pdf->writeHTML($fourthrow, true, false, false, false, 'L');
+    $pdf->SetY(185);
+
+    $fifthrow = '
+                <table style="width:100%">
+                    <tr>
+                        <td style="width:12%">Attested by: </td>
+                        <td style="width:33%; text-align:center">&nbsp;'.$row['supervisor'].'</td>
+                    </tr>
+                    <tr>
+                        <td style="width:12%"></td>
+                        <td  style="width:33%; border-top: 1 solid black;"> Supervisor or Head of Host Agency</td>
+                    </tr>
+                    <tr>
+                        <td style="width:12%"></td>
+                        <td  style="width:33%; text-align:center "> (Signature Over Printed Name)</td>
+                    </tr>
+                </table> ';
+    $pdf->writeHTML($fifthrow, true, false, false, false, 'L');
     
     //Close and output PDF document
     $pdf->Output('dtr_.pdf', 'D');
