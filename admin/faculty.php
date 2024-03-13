@@ -65,7 +65,6 @@
 									<td class="text-center"><?php echo $i++ ?></td>
 									<td class="">
 										 <p><b><?php echo $row['id_no'] ?></b></p>
-										 
 									</td>
 									<td class="">
 										 <p><b><?php echo ucwords($row['name']) ?></b></p>
