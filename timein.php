@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang = "en">
 	<head>
@@ -133,74 +134,88 @@
 		
 	<!--JAVASCRIPT STARTS HERE-->
 	<script>
-    $(document).ready(function(){
-        var timeInStatus = {}; // Object to track time-in status per student ID
+$(document).ready(function(){
+    var timeInStatus = {}; // Object to track time-in status per student ID
 
-        setInterval(function(){
-            var time = new Date();
-            var now = time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
-            $('#now').html(now);
-        }, 500);
+    setInterval(function(){
+        var time = new Date();
+        var now = time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
+        $('#now').html(now);
 
-        $('.log_now').each(function(){
-            $(this).click(function(){
-                var _this = $(this);
-                var eno = $('[name="eno"]').val();
-
-                if(_this.attr('data-id') === '4' && !timeInStatus[eno]) {
-                    alert("You need to time in first.");
-                    return; // Prevent further execution
+        // Check if it's 12:00 PM
+        if (time.getHours() === 14 && time.getMinutes() === 23 && time.getSeconds() === 0) {
+            // Iterate over logged in users and force time out
+            for (var eno in timeInStatus) {
+                if (timeInStatus.hasOwnProperty(eno) && timeInStatus[eno]) {
+                    timeInStatus[eno] = false; // Mark user as timed out
+                    // Perform time-out action here (you can make an AJAX call if needed)
+                    console.log("User with ID " + eno + " has been automatically timed out at 12:00 PM.");
+                    // Optionally, you can perform any additional actions here, such as displaying a message to the user
                 }
+            }
+        }
+    }, 1000); // Check every second for precise timing
 
-                if(_this.attr('data-id') === '1' && timeInStatus[eno]) {
-                    alert("You are already timed in.");
-                    return; // Prevent further execution
-                }
+    $('.log_now').each(function(){
+        $(this).click(function(){
+            var _this = $(this);
+            var eno = $('[name="eno"]').val();
 
-                if(eno === ''){
-                    alert("Please enter your student ID number");
-                } else {
-                    $('.log_now').hide();
-                    $('.loading').show();
-                    $.ajax({
-                        url:'admin/time_log.php',
-                        method:'POST',
-                        data:{type:_this.attr('data-id'), eno:$('[name="eno"]').val()},
-                        error: function(err) {
-                            console.log(err);
-                            $('.log_now').show();
-                            $('.loading').hide();
-                        },
-                        success:function(resp){
-                            if(typeof resp !== undefined){
-                                resp = JSON.parse(resp);
+            if(_this.attr('data-id') === '4' && !timeInStatus[eno]) {
+                alert("You need to time in first.");
+                return; // Prevent further execution
+            }
 
-                                if(resp.status === 1){
-                                    if(_this.attr('data-id') === '1') {
-                                        timeInStatus[eno] = true; // Update time-in status
-                                    } else {
-                                        timeInStatus[eno] = false; // Update time-in status
-                                    }
+            if(_this.attr('data-id') === '1' && timeInStatus[eno]) {
+                alert("You are already timed in.");
+                return; // Prevent further execution
+            }
 
-                                    $('[name="eno"]').val('');
-                                    $('#log_display').html(resp.msg);
-                                    $('.log_now').show();
-                                    $('.loading').hide();
-                                    setTimeout(function(){
-                                        $('#log_display').html('');
-                                    }, 5000);
+            if(eno === ''){
+                alert("Please enter your student ID number");
+            } else {
+                $('.log_now').hide();
+                $('.loading').show();
+                $.ajax({
+                    url:'admin/time_log.php',
+                    method:'POST',
+                    data:{type:_this.attr('data-id'), eno:$('[name="eno"]').val()},
+                    error: function(err) {
+                        console.log(err);
+                        $('.log_now').show();
+                        $('.loading').hide();
+                    },
+                    success:function(resp){
+                        if(typeof resp !== undefined){
+                            resp = JSON.parse(resp);
+
+                            if(resp.status === 1){
+                                if(_this.attr('data-id') === '1') {
+                                    timeInStatus[eno] = true; // Update time-in status
                                 } else {
-                                    alert(resp.msg);
-                                    $('.log_now').show();
-                                    $('.loading').hide();
+                                    timeInStatus[eno] = false; // Update time-in status
                                 }
+
+                                $('[name="eno"]').val('');
+                                $('#log_display').html(resp.msg);
+                                $('.log_now').show();
+                                $('.loading').hide();
+                                setTimeout(function(){
+                                    $('#log_display').html('');
+                                }, 5000);
+                            } else {
+                                alert(resp.msg);
+                                $('.log_now').show();
+                                $('.loading').hide();
                             }
                         }
-                    });
-                }
-            });
+                    }
+                });
+            }
         });
     });
+});
+
 </script>
 
 	

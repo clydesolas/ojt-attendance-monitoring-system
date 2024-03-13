@@ -32,9 +32,8 @@ foreach ($semester_options as $option) {
         <input type="hidden" name="id" value="<?php echo isset($_GET['id']) ? $_GET['id']:'' ?>" class="form-control">
         <div class="row form-group">
             <div class="col-md-4">
-                <label class="control-label">ID No.</label>
-                <input type="text" name="id_no" class="form-control" value="<?php echo isset($id_no) ? $id_no:'' ?>">
-                <small><i>Leave this blank if you want to auto-generate ID no.</i></small>
+                <label class="control-label">Student No.</label>
+                <input type="text" name="id_no" class="form-control" value="<?php echo isset($id_no) ? $id_no:'' ?>" required>
             </div>
         </div>
         <div class="row form-group">
@@ -69,19 +68,18 @@ foreach ($semester_options as $option) {
             </div>
         </div>
         <div class="row form-group">
-            <div class="col-md-12">
-                <label class="control-label">Address</label>
-                <textarea name="address" class="form-control"><?php echo isset($address) ? $address : '' ?></textarea>
+            <div class="col-md-4">
+                <label class="control-label">Supervisor</label>
+                <input type="text" name="supervisor" class="form-control" value="<?php echo isset($supervisor) ? $supervisor:'' ?>"></input>
             </div>
         </div>
         <!-- Additional Inputs -->
         <div class="row form-group">
             <div class="col-md-4">
                 <label class="control-label">Academic Year</label>
-                <select name="academic_year" required class="custom-select">
-				<option selected>select..</option>
-                    <option value="<?php echo $academic_year; ?>"><?php echo $academic_year; ?></option>
-                    <option value="<?php echo $academic_year2; ?>"><?php echo $academic_year2; ?></option>
+                <select name="academic_year" required="" class="custom-select" id="">
+                    <option <?php echo isset($academic_year) && $academic_year == '2023-2024' ? 'selected' : '' ?>>2023-2024</option>
+                    <option <?php echo isset($academic_year) && $academic_year == '2024-2025' ? 'selected' : '' ?>>2024-2025</option>
                 </select>
             </div>
             <div class="col-md-4">
@@ -119,7 +117,7 @@ foreach ($semester_options as $option) {
                         location.reload()
                     },1000)
                 } else if(resp == 2){
-                    $('#msg').html('<div class="alert alert-danger">ID No already existed.</div>')
+                    $('#msg').html('<div class="alert alert-danger">ID No. already existed.</div>')
                     end_load();
                 }
             }
