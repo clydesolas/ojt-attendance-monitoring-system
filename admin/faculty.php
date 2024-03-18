@@ -29,7 +29,7 @@
 						<b>Intern List</b>
 						<span class="">
 
-							<button class="btn btn-primary btn-block btn-sm col-sm-2 float-right" type="button" id="new_faculty">
+							<button class="btn btn-success btn-block btn-sm col-sm-2 float-right" type="button" id="new_faculty">
 					<i class="fa fa-plus"></i> Add Intern</button>
 				</span>
 					</div>
