@@ -214,12 +214,12 @@ class MYPDF extends TCPDF {
 
     $i = 0;
     while ($row_data = $result->fetch_assoc()) {
+        $sumHours = $row_data['total_work_hours'];
+        $average_hour = $average_hour + $sumHours;
         $i++;
         $date = date("F j, Y", strtotime($row_data['log_date']));
         $morningTimeIn = $row_data['time_in'];
         $morningTimeOut = $row_data['time_out'];
-        $sumHours = $row_data['total_work_hours'];
-        $average_hour = $average_hour + $sumHours;
         $signature=' ';
          // Append row to HTML string
         $html .= '<tr>';
@@ -262,5 +262,5 @@ class MYPDF extends TCPDF {
     $pdf->writeHTML($fifthrow, true, false, false, false, 'L');
     
     //Close and output PDF document
-    $pdf->Output('dtr_.pdf', 'D');
+    $pdf->Output($fullname.'_dtr.pdf', 'D');
 }

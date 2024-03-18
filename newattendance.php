@@ -78,7 +78,7 @@ h3 {
 						<tr>
 							<td><?php echo $row['id_no']?></td>
 							<td><?php echo htmlentities($row['name'])?></td>
-							<td><?php echo date("F d, Y", strtotime($row['datetime_log']))?></td>
+							<td><?php echo date("F d, Y - l", strtotime($row['datetime_log']))?></td>
 							<?php 
 							if($row['log_type'] ==1){
 								$log = "TIME IN";
